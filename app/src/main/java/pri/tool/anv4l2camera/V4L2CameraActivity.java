@@ -7,6 +7,8 @@ import android.util.Size;
 import android.view.SurfaceHolder;
 
 
+import java.io.DataOutputStream;
+
 import pri.tool.v4l2camera.IDataCallback;
 import pri.tool.v4l2camera.IStateCallback;
 import pri.tool.v4l2camera.V4L2Camera;
@@ -29,7 +31,44 @@ public class V4L2CameraActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera);
 
+        String apkRoot="chmod 777 "+getPackageCodePath();
+        RootCommand(apkRoot);
+
         initView();
+    }
+
+    public static boolean RootCommand(String command)
+    {
+        Process process = null;
+        DataOutputStream os = null;
+        try
+        {
+            process = Runtime.getRuntime().exec("su");
+            Log.e(TAG, "---process:" + process.getOutputStream());
+            os = new DataOutputStream(process.getOutputStream());
+            os.writeBytes(command + "\n");
+            os.writeBytes("exit\n");
+            os.flush();
+            process.waitFor();
+        } catch (Exception e)
+        {
+            Log.d(TAG, "ROOT failed" + e.getMessage());
+            return false;
+        } finally
+        {
+            try
+            {
+                if (os != null)
+                {
+                    os.close();
+                }
+                process.destroy();
+            } catch (Exception e)
+            {
+            }
+        }
+        Log.d(TAG, "Root succ ");
+        return true;
     }
 
     public void initView() {

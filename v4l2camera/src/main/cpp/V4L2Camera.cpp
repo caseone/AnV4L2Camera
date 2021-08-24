@@ -112,11 +112,13 @@ int V4L2Camera::Open(const char *filename,
     int ret;
     struct v4l2_format format;
 
-    fd = open(filename, O_RDWR, 0);
+    fd = open(filename, O_RDWR | O_NONBLOCK);//O_RDWR
     if (fd < 0) {
-        ALOGE("Error opening device: %s", filename);
+        ALOGE("Error opening device: %s, %d, %d, %s", filename, fd, errno, strerror(errno));
         return -1;
     }
+    ALOGE("opening device succ: %s, %d, %d", filename, fd, errno);
+
 
     width = w;
     height = h;
